@@ -289,3 +289,149 @@ ul.tickets li a:hover { background:#f8fafc; box-shadow:0 2px 10px rgba(15,23,42,
 @media (prefers-reduced-motion: reduce) {
   ul.tickets li a { transition:none; }
 }
+
+/* ===== Page de connexion ===== */
+.auth { max-width:1040px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:0;
+  border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(15,23,42,.1);
+  min-height:min(560px, 80vh); }
+
+.auth-brand { position:relative; color:#fff; display:flex;
+  background:linear-gradient(135deg,#0b1220 0%,#111827 45%,#1e3a8a 100%); overflow:hidden; }
+.auth-brand-deco { position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background:
+    radial-gradient(380px 380px at 90% -10%, rgba(96,165,250,.35), transparent 60%),
+    radial-gradient(320px 320px at 0% 120%, rgba(37,99,235,.35), transparent 60%); }
+.auth-brand-inner { position:relative; padding:40px 36px; display:flex; flex-direction:column; justify-content:center; gap:18px; }
+.auth-logo { font-size:1.5rem; }
+.auth-tagline { font-size:1.15rem; color:#e2e8f0; margin:0; max-width:26ch; line-height:1.35; }
+.auth-points { list-style:none; padding:0; margin:8px 0 0; display:grid; gap:14px; }
+.auth-points li { display:flex; align-items:center; gap:12px; color:#cbd5e1; font-size:.95rem; }
+.auth-point-ico { flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:10px; color:#bfdbfe;
+  background:rgba(96,165,250,.14); border:1px solid rgba(96,165,250,.3); }
+
+.auth-main { background:var(--card); display:flex; align-items:center; justify-content:center; padding:36px 28px; }
+.auth-card { width:100%; max-width:360px; }
+.auth-card h1 { margin:0 0 4px; font-size:1.5rem; }
+.auth-sub { color:var(--muted); margin:0 0 20px; }
+.auth-error { display:flex; align-items:center; gap:8px; }
+.auth-error svg { flex:0 0 auto; }
+
+.field { display:block; margin-bottom:14px; }
+.field-label { display:block; font-weight:600; font-size:.9rem; margin-bottom:6px; }
+.field-wrap { position:relative; display:flex; align-items:center; }
+.field-ico { position:absolute; left:11px; color:var(--muted); pointer-events:none; }
+.field-wrap input { margin:0; padding:11px 12px 11px 38px; border-radius:10px; }
+.field-wrap input::placeholder { color:#9ca3af; }
+.field-toggle { position:absolute; right:6px; background:none; border:0; padding:6px; border-radius:8px;
+  color:var(--muted); cursor:pointer; display:inline-flex; }
+.field-toggle:hover { color:var(--ink); }
+
+.auth-submit { width:100%; margin-top:4px; padding:12px; font-size:1rem; font-weight:600; }
+.auth-submit:disabled { opacity:.7; cursor:progress; }
+
+.demo { margin-top:22px; }
+.demo-title { font-size:.8rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 10px; }
+.demo-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.demo-card { display:flex; flex-direction:column; align-items:flex-start; gap:2px;
+  background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; cursor:pointer; text-align:left;
+  transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.demo-card:hover { border-color:var(--primary); box-shadow:0 4px 12px rgba(37,99,235,.12); transform:translateY(-1px); }
+.demo-dot { width:10px; height:10px; border-radius:50%; background:var(--c, var(--primary)); margin-bottom:4px; }
+.demo-role { font-size:.72rem; color:var(--muted); } .demo-name { font-weight:700; font-size:.92rem; }
+
+.auth-back { display:inline-block; margin-top:18px; color:var(--muted); text-decoration:none; font-size:.9rem; }
+.auth-back:hover { color:var(--primary); }
+
+.field-wrap input:focus-visible, .field-toggle:focus-visible, .demo-card:focus-visible, .auth-submit:focus-visible {
+  outline:2px solid var(--primary); outline-offset:2px;
+}
+
+@media (max-width:760px) {
+  .auth { grid-template-columns:1fr; min-height:0; }
+  .auth-brand-inner { padding:24px 22px; gap:12px; }
+  .auth-tagline { font-size:1rem; }
+  /* Bandeau compact : on masque la liste des points forts sur petit écran */
+  .auth-points { display:none; }
+  .auth-main { padding:26px 20px; }
+}
+
+@media (max-width:400px) {
+  .demo-grid { grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-card { transition:none; }
+  .demo-card:hover { transform:none; }
+}
+
+/* ===== Assistant façon messagerie (étape 2) ===== */
+.assistant-layout { display:grid; grid-template-columns:1fr 280px; gap:16px; align-items:stretch; }
+
+/* Coquille du chat : hauteur d'écran, saisie en bas, messages au milieu qui défilent */
+.chat-shell { display:flex; flex-direction:column; height:calc(100vh - 150px); min-height:460px;
+  max-height:760px; margin-bottom:0; padding:0; overflow:hidden; }
+
+/* En-tête du chat */
+.chat-header { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line);
+  background:#fff; }
+.chat-header-avatar { width:42px; height:42px; }
+.chat-header-info { flex:1; min-width:0; }
+.chat-title { font-size:1.05rem; margin:0; }
+.chat-status { margin:0; font-size:.82rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+.status-dot { width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 0 3px rgba(22,163,74,.18);
+  animation:pulse-dot 2.4s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100% { box-shadow:0 0 0 3px rgba(22,163,74,.18); } 50% { box-shadow:0 0 0 5px rgba(22,163,74,.08); } }
+.chat-badge { flex:0 0 auto; font-size:.72rem; font-weight:600; color:#3730a3; background:#e0e7ff;
+  border:1px solid #c7d2fe; padding:4px 9px; border-radius:999px; }
+
+/* Zone de messages : occupe l'espace dispo et défile */
+.chat-shell .messages { flex:1 1 auto; min-height:0; max-height:none; overflow-y:auto; padding:16px; gap:14px; }
+
+/* Avatar aligné en HAUT de la bulle */
+.msg-row { align-items:flex-start; }
+
+/* Bulles : assistant blanche à bordure légère, utilisateur bleue */
+.msg.bot { background:#fff; border:1px solid var(--line); color:var(--ink); box-shadow:0 1px 2px rgba(15,23,42,.04); }
+.msg.user { background:var(--primary); color:#fff; }
+.msg-row { animation:msg-in .22s ease-out; }
+@keyframes msg-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* Suggestions avec icône */
+.suggestions { padding:0 16px; }
+.suggestion { display:inline-flex; align-items:center; gap:7px; }
+.suggestion svg { flex:0 0 auto; opacity:.85; }
+
+/* Barre de saisie */
+.chat-bar { padding:12px 16px 4px; border-top:1px solid var(--line); align-items:center; }
+.chat-bar input { border-radius:999px; padding:11px 16px; }
+.send-round { flex:0 0 auto; width:44px; height:44px; border-radius:50%; border:0; background:var(--primary); color:#fff;
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  transition:background .15s ease, transform .15s ease; }
+.send-round:hover:not(:disabled) { background:#1d4ed8; transform:scale(1.05); }
+.send-round:disabled { opacity:.5; cursor:not-allowed; }
+.send-round svg { margin-left:-1px; }
+.chat-note { margin:6px 16px 14px; font-size:.76rem; color:var(--muted); }
+
+/* Panneau latéral */
+.chat-aside { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; align-self:start; }
+.aside-title { font-size:.95rem; margin:0 0 12px; }
+.aside-list { list-style:none; padding:0; margin:0 0 16px; display:grid; gap:11px; }
+.aside-list li { display:flex; align-items:center; gap:10px; font-size:.9rem; color:var(--ink); }
+.aside-list li svg { flex:0 0 auto; color:var(--primary); }
+.aside-cta { display:block; text-align:center; width:100%; }
+
+.send-round:focus-visible, .chat-bar input:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
+
+@media (max-width:860px) {
+  .assistant-layout { grid-template-columns:1fr; }
+  .chat-aside { display:none; }
+  .chat-shell { height:calc(100vh - 130px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot { animation:none; }
+  .msg-row { animation:none; }
+  .send-round { transition:none; }
+  .send-round:hover:not(:disabled) { transform:none; }
+}

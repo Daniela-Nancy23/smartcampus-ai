@@ -1,13 +1,134 @@
 <%- include('partials/header') %>
-<section class="card narrow">
-  <h1>Connexion</h1>
-  <% if (erreur) { %><p class="alert error"><%= erreur %></p><% } %>
-  <form method="post" action="/login">
-    <label>E-mail <input type="email" name="email" value="<%= email %>" required autofocus></label>
-    <label>Mot de passe <input type="password" name="mot_de_passe" required></label>
-    <button class="primary">Se connecter</button>
-  </form>
-  <p class="hint">Comptes de démo (mot de passe <code>demo1234</code>) :<br>
-    lea@campus.fr (étudiante) · karim@campus.fr (technicien) · sophie@campus.fr (admin)</p>
-</section>
+<div class="auth">
+  <!-- Panneau de marque (bandeau compact sur mobile) -->
+  <aside class="auth-brand">
+    <div class="auth-brand-deco" aria-hidden="true"></div>
+    <div class="auth-brand-inner">
+      <a class="logo auth-logo" href="/accueil">SmartCampus <span>AI</span></a>
+      <p class="auth-tagline">Signalez, suivez et résolvez les incidents du campus.</p>
+      <ul class="auth-points">
+        <li>
+          <span class="auth-point-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <span>Signalement en 30 secondes</span>
+        </li>
+        <li>
+          <span class="auth-point-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+          </span>
+          <span>Suivi en temps réel</span>
+        </li>
+        <li>
+          <span class="auth-point-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M8 2h8"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
+          </span>
+          <span>Assistant IA disponible 24 h/24</span>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Carte de connexion -->
+  <main class="auth-main">
+    <section class="auth-card">
+      <h1>Bienvenue</h1>
+      <p class="auth-sub">Connectez-vous à votre espace</p>
+
+      <% if (erreur) { %>
+        <p class="alert error auth-error">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          <span><%= erreur %></span>
+        </p>
+      <% } %>
+
+      <form method="post" action="/login" id="login-form">
+        <label class="field">
+          <span class="field-label">E-mail</span>
+          <span class="field-wrap">
+            <svg class="field-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            <input type="email" name="email" value="<%= email %>" required autofocus autocomplete="username" placeholder="prenom@campus.fr">
+          </span>
+        </label>
+
+        <label class="field">
+          <span class="field-label">Mot de passe</span>
+          <span class="field-wrap">
+            <svg class="field-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input type="password" name="mot_de_passe" id="mot-de-passe" required autocomplete="current-password" placeholder="••••••••">
+            <button type="button" class="field-toggle" id="toggle-mdp" aria-label="Afficher le mot de passe" aria-pressed="false">
+              <svg class="eye-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.2 4.2"/><path d="M9.9 5.2A9.4 9.4 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-3.3 4"/><path d="M6.6 6.6A16 16 0 0 0 2 12s3.5 7 10 7a9.4 9.4 0 0 0 3-.5"/></svg>
+            </button>
+          </span>
+        </label>
+
+        <button class="primary auth-submit" id="login-submit">Se connecter</button>
+      </form>
+
+      <div class="demo">
+        <p class="demo-title">Comptes de démonstration</p>
+        <div class="demo-grid">
+          <button type="button" class="demo-card" data-email="lea@campus.fr">
+            <span class="demo-dot" style="--c:#2563eb" aria-hidden="true"></span>
+            <span class="demo-role">Étudiante</span>
+            <span class="demo-name">Léa</span>
+          </button>
+          <button type="button" class="demo-card" data-email="karim@campus.fr">
+            <span class="demo-dot" style="--c:#16a34a" aria-hidden="true"></span>
+            <span class="demo-role">Technicien</span>
+            <span class="demo-name">Karim</span>
+          </button>
+          <button type="button" class="demo-card" data-email="sophie@campus.fr">
+            <span class="demo-dot" style="--c:#d97706" aria-hidden="true"></span>
+            <span class="demo-role">Admin</span>
+            <span class="demo-name">Sophie</span>
+          </button>
+        </div>
+      </div>
+
+      <a class="auth-back" href="/accueil">← Retour à la présentation</a>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  // Afficher / masquer le mot de passe
+  var champ = document.getElementById('mot-de-passe');
+  var toggle = document.getElementById('toggle-mdp');
+  if (toggle && champ) {
+    var eyeOn = toggle.querySelector('.eye-on');
+    var eyeOff = toggle.querySelector('.eye-off');
+    toggle.addEventListener('click', function () {
+      var visible = champ.type === 'text';
+      champ.type = visible ? 'password' : 'text';
+      toggle.setAttribute('aria-pressed', String(!visible));
+      toggle.setAttribute('aria-label', visible ? 'Afficher le mot de passe' : 'Masquer le mot de passe');
+      if (eyeOn) eyeOn.hidden = !visible;
+      if (eyeOff) eyeOff.hidden = visible;
+    });
+  }
+
+  // Comptes de démo : remplissage automatique (mot de passe demo1234)
+  var emailInput = document.querySelector('input[name="email"]');
+  document.querySelectorAll('.demo-card').forEach(function (card) {
+    card.addEventListener('click', function () {
+      if (emailInput) emailInput.value = card.getAttribute('data-email');
+      if (champ) champ.value = 'demo1234';
+      if (champ) champ.focus();
+    });
+  });
+
+  // État « Connexion… » au clic
+  var form = document.getElementById('login-form');
+  var submit = document.getElementById('login-submit');
+  if (form && submit) {
+    form.addEventListener('submit', function () {
+      submit.disabled = true;
+      submit.textContent = 'Connexion…';
+    });
+  }
+})();
+</script>
 <%- include('partials/footer') %>
