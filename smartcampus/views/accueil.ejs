@@ -1,0 +1,132 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <div class="hero-deco" aria-hidden="true"></div>
+  <div class="hero-grid">
+    <div class="hero-text">
+      <span class="eyebrow">Plateforme de gestion d'incidents du campus</span>
+      <h1 class="hero-title">SmartCampus <span>AI</span></h1>
+      <p class="hero-lead">
+        Signalez une panne, suivez vos demandes et laissez l'assistant intelligent
+        orienter chaque incident vers la bonne équipe. Une seule plateforme pour
+        les étudiants, les techniciens et l'administration.
+      </p>
+      <div class="hero-actions">
+        <% if (user) { %>
+          <a class="button primary lg" href="/">Accéder à mon espace</a>
+        <% } else { %>
+          <a class="button primary lg" href="/login">Se connecter</a>
+          <a class="button lg" href="#fonctions">Découvrir</a>
+        <% } %>
+      </div>
+      <ul class="hero-stats">
+        <li><strong>3</strong><span>rôles (étudiant, technicien, admin)</span></li>
+        <li><strong>IA</strong><span>tri automatique des incidents</span></li>
+        <li><strong>24 h</strong><span>suivi des délais de résolution</span></li>
+      </ul>
+    </div>
+
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2563eb"/>
+            <stop offset="1" stop-color="#60a5fa"/>
+          </linearGradient>
+          <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="1" stop-color="#eff6ff"/>
+          </linearGradient>
+        </defs>
+        <rect x="24" y="40" width="432" height="300" rx="18" fill="url(#g1)"/>
+        <rect x="48" y="70" width="384" height="244" rx="12" fill="url(#g2)"/>
+        <!-- barre de fenêtre -->
+        <circle cx="70" cy="92" r="5" fill="#f87171"/>
+        <circle cx="90" cy="92" r="5" fill="#fbbf24"/>
+        <circle cx="110" cy="92" r="5" fill="#34d399"/>
+        <!-- cartes tickets -->
+        <rect x="70" y="118" width="180" height="40" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+        <rect x="80" y="128" width="20" height="20" rx="5" fill="#2563eb"/>
+        <rect x="112" y="130" width="120" height="7" rx="3" fill="#cbd5e1"/>
+        <rect x="112" y="143" width="80" height="6" rx="3" fill="#e2e8f0"/>
+        <rect x="70" y="168" width="180" height="40" rx="8" fill="#fff7ed" stroke="#fed7aa"/>
+        <rect x="80" y="178" width="20" height="20" rx="5" fill="#d97706"/>
+        <rect x="112" y="180" width="120" height="7" rx="3" fill="#cbd5e1"/>
+        <rect x="112" y="193" width="60" height="6" rx="3" fill="#e2e8f0"/>
+        <rect x="70" y="218" width="180" height="40" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+        <rect x="80" y="228" width="20" height="20" rx="5" fill="#16a34a"/>
+        <rect x="112" y="230" width="120" height="7" rx="3" fill="#cbd5e1"/>
+        <rect x="112" y="243" width="90" height="6" rx="3" fill="#e2e8f0"/>
+        <!-- mini graphe -->
+        <rect x="270" y="118" width="142" height="140" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+        <rect x="286" y="210" width="18" height="34" rx="3" fill="#60a5fa"/>
+        <rect x="312" y="188" width="18" height="56" rx="3" fill="#3b82f6"/>
+        <rect x="338" y="166" width="18" height="78" rx="3" fill="#2563eb"/>
+        <rect x="364" y="196" width="18" height="48" rx="3" fill="#93c5fd"/>
+        <rect x="286" y="136" width="70" height="7" rx="3" fill="#cbd5e1"/>
+        <!-- bulle assistant -->
+        <g>
+          <circle cx="410" cy="330" r="46" fill="#111827"/>
+          <circle cx="410" cy="330" r="46" fill="none" stroke="#2563eb" stroke-width="3"/>
+          <path d="M392 324h36M392 334h24" stroke="#60a5fa" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="398" cy="312" r="4" fill="#60a5fa"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="fonctions" class="features">
+  <h2 class="section-title">Ce que fait SmartCampus&nbsp;AI</h2>
+  <p class="section-sub">Trois parcours pensés pour chaque rôle du campus.</p>
+  <div class="feature-grid">
+    <article class="feature-card">
+      <div class="feature-ico" style="--c:#2563eb">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v6c0 5 3.8 8.3 9 9 5.2-.7 9-4 9-9V7z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <h3>Signaler &amp; suivre</h3>
+      <p>Les étudiants déclarent un incident en quelques secondes, ajoutent une photo et suivent l'avancement de leurs demandes en temps réel.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-ico" style="--c:#16a34a">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6h6"/><path d="M4 2h10l6 6v14H4z"/><path d="M8 13h8M8 17h5"/></svg>
+      </div>
+      <h3>File des techniciens</h3>
+      <p>Chaque technicien retrouve sa file priorisée, met à jour les statuts et documente la résolution étape par étape.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-ico" style="--c:#d97706">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+      </div>
+      <h3>Tableau de bord</h3>
+      <p>L'administration visualise les incidents par catégorie, statut et lieu, et surveille les délais et les alertes de sécurité.</p>
+    </article>
+    <article class="feature-card">
+      <div class="feature-ico" style="--c:#7c3aed">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 8V4M8 2h8"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/></svg>
+      </div>
+      <h3>Assistant IA</h3>
+      <p>Posez une question en langage naturel : l'assistant répond, oriente la demande et crée le bon ticket vers la bonne équipe.</p>
+    </article>
+  </div>
+</section>
+
+<section class="steps">
+  <h2 class="section-title">Comment ça marche</h2>
+  <div class="step-grid">
+    <div class="step"><span class="step-n">1</span><h3>Je signale</h3><p>Je décris l'incident et j'ajoute une photo si besoin.</p></div>
+    <div class="step"><span class="step-n">2</span><h3>L'IA trie</h3><p>L'assistant classe l'incident et l'oriente automatiquement.</p></div>
+    <div class="step"><span class="step-n">3</span><h3>Un technicien agit</h3><p>La demande entre dans la file de la bonne équipe.</p></div>
+    <div class="step"><span class="step-n">4</span><h3>Je suis résolu</h3><p>Je suis informé à chaque étape jusqu'à la clôture.</p></div>
+  </div>
+</section>
+
+<% if (!user) { %>
+<section class="cta">
+  <h2>Prêt à démarrer ?</h2>
+  <p>Connectez-vous avec un compte de démonstration pour explorer la plateforme.</p>
+  <a class="button primary lg" href="/login">Se connecter</a>
+</section>
+<% } %>
+
+<%- include('partials/footer') %>

@@ -34,6 +34,9 @@ app.get('/sante', async (req, res) => {
   }
 });
 
+// Page de présentation publique (accessible avec ou sans connexion)
+app.get('/accueil', (req, res) => res.render('accueil', { titre: 'Présentation' }));
+
 // Connexion
 app.get('/login', (req, res) => res.render('login', { titre: 'Connexion', erreur: null, email: '' }));
 app.post('/login', async (req, res) => {
@@ -44,8 +47,10 @@ app.post('/login', async (req, res) => {
 });
 app.post('/logout', (req, res) => { auth.deconnecter(res); res.redirect('/login'); });
 
-// Accueil : chaque rôle arrive sur son écran principal
-app.get('/', auth.requireRole(), (req, res) => {
+// Racine : visiteur non connecté -> page de présentation ;
+// connecté -> chaque rôle arrive sur son écran principal.
+app.get('/', (req, res) => {
+  if (!req.user) return res.redirect('/accueil');
   const accueil = { etudiant: '/mes-demandes', technicien: '/file', admin: '/admin/tickets' };
   res.redirect(accueil[req.user.role]);
 });
