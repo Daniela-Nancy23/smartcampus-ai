@@ -1,39 +1,158 @@
 <%- include('partials/header') %>
-<div class="head">
-  <h1>Tous les tickets</h1>
-  <nav class="filters">
-    <% [['ouverts','Ouverts'],['Nouveau','Nouveaux'],['En cours','En cours'],['Résolu','Résolus'],['tous','Tous']].forEach(([v, l]) => { %>
-      <a class="<%= filtre === v ? 'active' : '' %>" href="/admin/tickets?statut=<%= encodeURIComponent(v) %>"><%= l %></a>
-    <% }) %>
-  </nav>
+<div class="head tickets-head">
+  <div>
+    <h1>Tous les tickets</h1>
+    <p class="muted" id="ticket-count" aria-live="polite"><%= tickets.length %> ticket<%= tickets.length > 1 ? 's' : '' %> affiché<%= tickets.length > 1 ? 's' : '' %></p>
+  </div>
+  <div class="search-box">
+    <svg class="search-ico" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="search" id="ticket-search" placeholder="Rechercher (n°, catégorie, lieu, technicien)…" aria-label="Rechercher un ticket" autocomplete="off">
+  </div>
 </div>
+
+<nav class="filters pills" aria-label="Filtrer par statut">
+  <% [['ouverts','Ouverts'],['Nouveau','Nouveaux'],['En cours','En cours'],['Résolu','Résolus'],['tous','Tous']].forEach(([v, l]) => { %>
+    <a class="pill <%= filtre === v ? 'active' : '' %>" href="/admin/tickets?statut=<%= encodeURIComponent(v) %>">
+      <%= l %><span class="pill-count"><%= compteurs[v] %></span>
+    </a>
+  <% }) %>
+</nav>
+
 <% if (!tickets.length) { %>
   <p class="empty">Aucun ticket.</p>
 <% } else { %>
 <div class="table-wrap">
-<table>
+<table class="tickets-table">
   <thead><tr><th>Ticket</th><th>Catégorie · lieu</th><th>Statut</th><th>Créé le</th><th>Technicien et priorité</th></tr></thead>
   <tbody>
   <% tickets.forEach(t => { %>
-    <tr class="<%= t.priorite === 'Critique' ? 'critique' : '' %>">
-      <td><a href="/tickets/<%= t.id %>"><%= t.numero %></a></td>
-      <td><%= t.categorie %><br><span class="muted"><%= t.batiment %> · <%= t.salle %></span></td>
-      <td><%- include('partials/badges', { t }) %></td>
-      <td><%= fmt(t.cree_le) %></td>
-      <td>
-        <form method="post" action="/admin/tickets/<%= t.id %>/assigner" class="inline">
-          <select name="technicien_id">
-            <option value="">Non assigné</option>
-            <% techniciens.forEach(x => { %><option value="<%= x.id %>" <%= x.id === t.technicien_id ? 'selected' : '' %>><%= x.nom %></option><% }) %>
-          </select>
-          <select name="priorite"><% PRIORITES.forEach(p => { %><option <%= p === t.priorite ? 'selected' : '' %>><%= p %></option><% }) %></select>
-          <button>OK</button>
-        </form>
+    <tr class="ticket-row prio-row-<%= slug(t.priorite) %>"
+        data-search="<%= (t.numero + ' ' + t.categorie + ' ' + t.batiment + ' ' + t.salle + ' ' + (t.technicien_nom || 'non assigné')).toLowerCase() %>">
+      <td data-label="Ticket"><a class="ticket-num" href="/tickets/<%= t.id %>"><%= t.numero %></a></td>
+      <td data-label="Catégorie · lieu"><%= t.categorie %><br><span class="muted"><%= t.batiment %> · <%= t.salle %></span></td>
+      <td data-label="Statut"><%- include('partials/badges', { t }) %></td>
+      <td data-label="Créé le">
+        <time datetime="<%= new Date(t.cree_le).toISOString() %>" class="rel-date" title="<%= fmt(t.cree_le) %>"><%= fmt(t.cree_le) %></time>
+      </td>
+      <td data-label="Technicien et priorité">
+        <div class="assign-cell">
+          <span class="tech-avatar" aria-hidden="true" data-tech="<%= t.technicien_nom || '' %>"><%= t.technicien_nom ? t.technicien_nom.trim().split(/\s+/).map(w => w[0]).slice(0,2).join('').toUpperCase() : '—' %></span>
+          <form method="post" action="/admin/tickets/<%= t.id %>/assigner" class="inline assign-form" data-numero="<%= t.numero %>">
+            <select name="technicien_id" aria-label="Technicien assigné au ticket <%= t.numero %>">
+              <option value="">Non assigné</option>
+              <% techniciens.forEach(x => { %><option value="<%= x.id %>" <%= x.id === t.technicien_id ? 'selected' : '' %>><%= x.nom %></option><% }) %>
+            </select>
+            <select name="priorite" aria-label="Priorité du ticket <%= t.numero %>"><% PRIORITES.forEach(p => { %><option <%= p === t.priorite ? 'selected' : '' %>><%= p %></option><% }) %></select>
+            <button class="assign-ok">OK</button>
+            <span class="assign-state" aria-live="polite"></span>
+          </form>
+        </div>
       </td>
     </tr>
   <% }) %>
   </tbody>
 </table>
 </div>
+<p class="empty" id="no-result" hidden>Aucun ticket ne correspond à votre recherche.</p>
 <% } %>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  // --- Dates relatives (« il y a 3 h ») sans toucher au fuseau serveur ---
+  function relatif(iso) {
+    const diff = Date.now() - new Date(iso).getTime();
+    const min = Math.round(diff / 60000);
+    if (min < 1) return "à l'instant";
+    if (min < 60) return 'il y a ' + min + ' min';
+    const h = Math.round(min / 60);
+    if (h < 24) return 'il y a ' + h + ' h';
+    const j = Math.round(h / 24);
+    if (j < 30) return 'il y a ' + j + ' j';
+    const mo = Math.round(j / 30);
+    return 'il y a ' + mo + ' mois';
+  }
+  document.querySelectorAll('time.rel-date').forEach(function (el) {
+    var exact = el.textContent;
+    el.textContent = relatif(el.getAttribute('datetime'));
+    el.title = exact;
+  });
+
+  // --- Recherche instantanée côté client ---
+  var search = document.getElementById('ticket-search');
+  var rows = Array.prototype.slice.call(document.querySelectorAll('tr.ticket-row'));
+  var count = document.getElementById('ticket-count');
+  var noResult = document.getElementById('no-result');
+  var totalLabel = count ? count.textContent : '';
+  if (search) {
+    search.addEventListener('input', function () {
+      var q = search.value.trim().toLowerCase();
+      var visibles = 0;
+      rows.forEach(function (r) {
+        var ok = !q || r.getAttribute('data-search').indexOf(q) !== -1;
+        r.hidden = !ok;
+        if (ok) visibles++;
+      });
+      if (noResult) noResult.hidden = visibles !== 0;
+      if (count) {
+        count.textContent = q
+          ? (visibles + ' ticket' + (visibles > 1 ? 's' : '') + ' trouvé' + (visibles > 1 ? 's' : ''))
+          : totalLabel;
+      }
+    });
+  }
+
+  // --- Toast ---
+  var toast = document.getElementById('toast');
+  var toastTimer = null;
+  function afficherToast(texte) {
+    if (!toast) return;
+    toast.textContent = texte;
+    toast.hidden = false;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toast.classList.remove('show');
+      setTimeout(function () { toast.hidden = true; }, 300);
+    }, 2600);
+  }
+
+  // --- Assignation : envoi automatique au changement (OK conservé sans JS) ---
+  function initiales(nom) {
+    if (!nom) return '—';
+    return nom.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase();
+  }
+  document.querySelectorAll('form.assign-form').forEach(function (form) {
+    var btn = form.querySelector('.assign-ok');
+    var state = form.querySelector('.assign-state');
+    var avatar = form.parentNode.querySelector('.tech-avatar');
+    var selTech = form.querySelector('select[name="technicien_id"]');
+    if (btn) btn.hidden = true; // JS actif : on s'appuie sur le changement
+
+    function envoyer() {
+      var data = new URLSearchParams(new FormData(form));
+      if (state) state.textContent = 'Enregistrement…';
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: data.toString(),
+      }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (state) state.textContent = '';
+        if (avatar && selTech) {
+          var nom = selTech.selectedOptions[0] ? selTech.selectedOptions[0].textContent : '';
+          avatar.textContent = (selTech.value ? initiales(nom) : '—');
+        }
+        afficherToast('Ticket ' + form.getAttribute('data-numero') + ' mis à jour');
+      }).catch(function () {
+        if (state) state.textContent = 'Échec, réessayez';
+      });
+    }
+    form.querySelectorAll('select').forEach(function (sel) {
+      sel.addEventListener('change', envoyer);
+    });
+  });
+})();
+</script>
 <%- include('partials/footer') %>

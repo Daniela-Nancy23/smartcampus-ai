@@ -14,13 +14,14 @@
 <% } else { %>
   <ul class="tickets">
   <% tickets.forEach(t => { %>
-    <li>
+    <li class="prio-row-<%= slug(t.priorite) %>">
       <a href="/tickets/<%= t.id %>">
         <div class="row1"><strong><%= t.numero %></strong> · <%= t.categorie %> · <%= t.batiment %> <%= t.salle %></div>
-        <div class="row2"><%- include('partials/badges', { t }) %><span class="muted">Mis à jour le <%= fmt(t.maj_le) %></span></div>
+        <div class="row2"><%- include('partials/badges', { t }) %><span class="muted">Mis à jour <time datetime="<%= new Date(t.maj_le).toISOString() %>" class="rel-date" data-exact="le <%= fmt(t.maj_le) %>">le <%= fmt(t.maj_le) %></time></span></div>
       </a>
     </li>
   <% }) %>
   </ul>
 <% } %>
+<script src="/rel-date.js"></script>
 <%- include('partials/footer') %>

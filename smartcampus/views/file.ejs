@@ -6,14 +6,15 @@
 <% } else { %>
   <ul class="tickets">
   <% tickets.forEach(t => { %>
-    <li class="<%= t.priorite === 'Critique' ? 'critique' : '' %>">
+    <li class="prio-row-<%= slug(t.priorite) %> <%= t.priorite === 'Critique' ? 'critique' : '' %>">
       <a href="/tickets/<%= t.id %>">
         <div class="row1"><strong><%= t.numero %></strong> · <%= t.categorie %> · <%= t.batiment %> <%= t.salle %></div>
-        <div class="row2"><%- include('partials/badges', { t }) %><span class="muted">Signalé le <%= fmt(t.cree_le) %></span></div>
+        <div class="row2"><%- include('partials/badges', { t }) %><span class="muted">Signalé <time datetime="<%= new Date(t.cree_le).toISOString() %>" class="rel-date" data-exact="le <%= fmt(t.cree_le) %>">le <%= fmt(t.cree_le) %></time></span></div>
         <div class="row3"><%= t.description %></div>
       </a>
     </li>
   <% }) %>
   </ul>
 <% } %>
+<script src="/rel-date.js"></script>
 <%- include('partials/footer') %>

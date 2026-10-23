@@ -12,15 +12,25 @@ router.get('/admin/tickets', async (req, res) => {
   const filtre = req.query.statut || 'ouverts';
   const where = filtre === 'tous' ? '' : filtre === 'ouverts' ? `WHERE t.statut <> 'Résolu'` : 'WHERE t.statut = $1';
   const params = ['tous', 'ouverts'].includes(filtre) ? [] : [filtre];
-  const [tickets, techniciens] = await Promise.all([
+  const [tickets, techniciens, agr] = await Promise.all([
     db.query(`
       SELECT t.*, c.libelle AS categorie, l.batiment, l.salle, a.nom AS auteur_nom, tech.nom AS technicien_nom
       FROM ticket t JOIN categorie c ON c.id = t.categorie_id JOIN lieu l ON l.id = t.lieu_id
       JOIN utilisateur a ON a.id = t.auteur_id LEFT JOIN utilisateur tech ON tech.id = t.technicien_id
       ${where} ORDER BY ${ORDRE_PRIORITE_SQL}, t.cree_le`, params),
     db.query(`SELECT id, nom FROM utilisateur WHERE role = 'technicien' ORDER BY nom`),
+    // Compteurs par statut (une seule requête agrégée) pour les pilules de filtre
+    db.query(`SELECT
+                count(*)::int AS tous,
+                count(*) FILTER (WHERE statut <> 'Résolu')::int AS ouverts,
+                count(*) FILTER (WHERE statut = 'Nouveau')::int AS nouveau,
+                count(*) FILTER (WHERE statut = 'En cours')::int AS en_cours,
+                count(*) FILTER (WHERE statut = 'Résolu')::int AS resolu
+              FROM ticket`),
   ]);
-  res.render('admin-tickets', { titre: 'Tous les tickets', tickets: tickets.rows, techniciens: techniciens.rows, filtre, PRIORITES });
+  const a = agr.rows[0];
+  const compteurs = { ouverts: a.ouverts, 'Nouveau': a.nouveau, 'En cours': a.en_cours, 'Résolu': a.resolu, tous: a.tous };
+  res.render('admin-tickets', { titre: 'Tous les tickets', tickets: tickets.rows, techniciens: techniciens.rows, filtre, PRIORITES, compteurs });
 });
 
 // Assigner un technicien et/ou changer la priorité

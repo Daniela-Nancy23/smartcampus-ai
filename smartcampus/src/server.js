@@ -20,6 +20,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(auth.chargerUtilisateur);
 
+// Chemin courant exposé aux vues (sert au bouton flottant de l'assistant)
+app.use((req, res, next) => { res.locals.cheminCourant = req.path; next(); });
+
 // Helpers d'affichage disponibles dans toutes les vues
 app.locals.fmt = d => d ? new Date(d).toLocaleString('fr-FR', { timeZone: 'Europe/Paris', dateStyle: 'short', timeStyle: 'short' }) : '';
 app.locals.slug = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z]+/g, '-');

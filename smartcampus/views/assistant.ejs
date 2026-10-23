@@ -3,44 +3,173 @@
   <h1>Assistant du campus</h1>
   <p class="muted">Posez une question sur le campus : horaires, Wi-Fi, impression, réservation de salle…</p>
   <div id="messages" class="messages" aria-live="polite"></div>
+
+  <div id="suggestions" class="suggestions" aria-label="Questions suggérées">
+    <button type="button" class="suggestion">Comment me connecter au Wi-Fi ?</button>
+    <button type="button" class="suggestion">Horaires de la bibliothèque</button>
+    <button type="button" class="suggestion">Comment imprimer ?</button>
+    <button type="button" class="suggestion">Signaler un problème</button>
+  </div>
+
   <form id="chat-form" class="chat-form">
     <input id="question" name="question" maxlength="500" placeholder="Ex. : comment me connecter au Wi-Fi ?" autocomplete="off" required>
-    <button class="primary">Envoyer</button>
+    <button class="primary" id="send-btn">Envoyer</button>
   </form>
 </section>
+
+<!-- Avatar SVG de l'assistant (cloné en JS, jamais via innerHTML) -->
+<template id="tpl-avatar">
+  <span class="avatar bot-avatar" aria-hidden="true">
+    <svg viewBox="0 0 48 48" width="24" height="24" role="img" aria-hidden="true" focusable="false">
+      <rect x="9" y="16" width="30" height="22" rx="8" fill="#fff"/>
+      <rect x="21" y="8" width="6" height="8" rx="3" fill="#fff"/>
+      <circle cx="24" cy="7" r="3" fill="#fff"/>
+      <circle cx="18" cy="26" r="3" fill="#2563eb"/>
+      <circle cx="30" cy="26" r="3" fill="#2563eb"/>
+      <path d="M18 32c2 2.4 4 3.5 6 3.5s4-1.1 6-3.5" fill="none" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M6 24v4M42 24v4" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+    </svg>
+  </span>
+</template>
+
 <script>
-  const form = document.getElementById('chat-form');
-  const input = document.getElementById('question');
-  const box = document.getElementById('messages');
-  function ajouter(classe, texte, lien) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + classe;
-    div.textContent = texte;
-    if (lien) {
-      const a = document.createElement('a');
-      a.href = lien; a.className = 'button'; a.textContent = 'Créer un signalement';
-      div.appendChild(document.createElement('br')); div.appendChild(a);
-    }
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-    return div;
+(function () {
+  var PRENOM = <%- JSON.stringify(prenom || '') %>;
+  var INITIALES = <%- JSON.stringify(initiales || '') %>;
+
+  var form = document.getElementById('chat-form');
+  var input = document.getElementById('question');
+  var box = document.getElementById('messages');
+  var sendBtn = document.getElementById('send-btn');
+  var suggestions = document.getElementById('suggestions');
+  var tplAvatar = document.getElementById('tpl-avatar');
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function heure() {
+    var d = new Date();
+    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
   }
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const question = input.value.trim();
-    if (!question) return;
+
+  function avatarBot() {
+    return tplAvatar.content.firstElementChild.cloneNode(true);
+  }
+  function avatarUser() {
+    var s = document.createElement('span');
+    s.className = 'avatar user-avatar';
+    s.setAttribute('aria-hidden', 'true');
+    s.textContent = INITIALES || '•';
+    return s;
+  }
+
+  // Construit une ligne de message (avatar + bulle + heure). Aucun innerHTML.
+  function ajouter(classe, texte, lien) {
+    var row = document.createElement('div');
+    row.className = 'msg-row ' + (classe.indexOf('user') !== -1 ? 'from-user' : 'from-bot');
+
+    if (classe.indexOf('user') !== -1) row.appendChild(avatarUser());
+    else row.appendChild(avatarBot());
+
+    var wrap = document.createElement('div');
+    wrap.className = 'msg-wrap';
+
+    var bulle = document.createElement('div');
+    bulle.className = 'msg ' + classe;
+    bulle.textContent = texte;
+
+    if (lien) {
+      var a = document.createElement('a');
+      a.href = lien;
+      a.className = 'button';
+      a.textContent = 'Créer un signalement';
+      bulle.appendChild(document.createElement('br'));
+      bulle.appendChild(a);
+    }
+    wrap.appendChild(bulle);
+
+    if (classe.indexOf('pending') === -1) {
+      var h = document.createElement('span');
+      h.className = 'msg-time';
+      h.textContent = heure();
+      wrap.appendChild(h);
+    }
+    row.appendChild(wrap);
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+    return row;
+  }
+
+  // Indicateur « l'assistant écrit… » (trois points)
+  function ajouterAttente() {
+    var row = document.createElement('div');
+    row.className = 'msg-row from-bot';
+    row.appendChild(avatarBot());
+    var bulle = document.createElement('div');
+    bulle.className = 'msg bot typing';
+    bulle.setAttribute('aria-label', "L'assistant écrit…");
+    for (var i = 0; i < 3; i++) {
+      var dot = document.createElement('span');
+      dot.className = 'dot';
+      bulle.appendChild(dot);
+    }
+    row.appendChild(bulle);
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+    return row;
+  }
+
+  function verrouiller(actif) {
+    input.disabled = actif;
+    sendBtn.disabled = actif;
+  }
+
+  async function envoyer(question) {
+    question = (question || '').trim();
+    if (!question || input.disabled) return;
+    if (suggestions) suggestions.hidden = true;
     ajouter('user', question);
     input.value = '';
-    const attente = ajouter('bot pending', '…');
+    verrouiller(true);
+    var attente = ajouterAttente();
     try {
-      const r = await fetch('/api/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) });
-      const d = await r.json();
+      var r = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question }),
+      });
+      var d = await r.json();
       attente.remove();
       ajouter('bot', d.reponse || d.erreur || 'Erreur', d.signalement);
-    } catch {
+    } catch (e) {
       attente.remove();
       ajouter('bot', "L'assistant est indisponible pour le moment.");
+    } finally {
+      verrouiller(false);
+      input.focus();
+    }
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    envoyer(input.value);
+  });
+
+  // Entrée pour envoyer (le submit natif s'en charge, mais on évite le retour ligne)
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
     }
   });
+
+  if (suggestions) {
+    suggestions.querySelectorAll('.suggestion').forEach(function (b) {
+      b.addEventListener('click', function () { envoyer(b.textContent); });
+    });
+  }
+
+  // Message d'accueil automatique à l'ouverture
+  ajouter('bot',
+    'Bonjour ' + (PRENOM || '') + ' ! Je suis l\'assistant du campus. Je peux répondre à vos questions sur le Wi-Fi, les horaires, l\'impression, les réservations… et vous aider à signaler un problème.');
+})();
 </script>
 <%- include('partials/footer') %>

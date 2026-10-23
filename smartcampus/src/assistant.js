@@ -38,11 +38,15 @@ function extraireJson(texte) {
   try { return JSON.parse(texte.slice(debut, fin + 1)); } catch { return null; }
 }
 
-async function demanderBedrock(question) {
+async function demanderBedrock(question, prenom) {
   const { ConverseCommand } = require('@aws-sdk/client-bedrock-runtime');
+  // Personnalisation : on ajoute le prénom au prompt sans modifier les règles existantes.
+  const systeme = prenom
+    ? `${PROMPT_SYSTEME}\n\nL'utilisateur s'appelle ${prenom}, tu peux l'appeler par son prénom.`
+    : PROMPT_SYSTEME;
   const sortie = await bedrock().send(new ConverseCommand({
     modelId: process.env.BEDROCK_MODEL_ID,
-    system: [{ text: PROMPT_SYSTEME }],
+    system: [{ text: systeme }],
     messages: [{ role: 'user', content: [{ text: question }] }],
     inferenceConfig: { maxTokens: 400, temperature: 0.2 },
   }));
@@ -104,14 +108,15 @@ function repondreMotsCles(question) {
   };
 }
 
-async function repondre(question) {
+async function repondre(question, prenom) {
   if (process.env.BEDROCK_MODEL_ID) {
     try {
-      return await demanderBedrock(question);
+      return await demanderBedrock(question, prenom);
     } catch (e) {
       console.error('[assistant] Bedrock indisponible, bascule en mode mots-clés :', e.name, e.message);
     }
   }
+  // Plan B (mots-clés) inchangé : le prénom n'y est pas utilisé.
   return repondreMotsCles(question);
 }
 
