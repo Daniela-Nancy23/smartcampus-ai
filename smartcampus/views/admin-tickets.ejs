@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+<div class="head">
+  <h1>Tous les tickets</h1>
+  <nav class="filters">
+    <% [['ouverts','Ouverts'],['Nouveau','Nouveaux'],['En cours','En cours'],['Résolu','Résolus'],['tous','Tous']].forEach(([v, l]) => { %>
+      <a class="<%= filtre === v ? 'active' : '' %>" href="/admin/tickets?statut=<%= encodeURIComponent(v) %>"><%= l %></a>
+    <% }) %>
+  </nav>
+</div>
+<% if (!tickets.length) { %>
+  <p class="empty">Aucun ticket.</p>
+<% } else { %>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Ticket</th><th>Catégorie · lieu</th><th>Statut</th><th>Créé le</th><th>Technicien et priorité</th></tr></thead>
+  <tbody>
+  <% tickets.forEach(t => { %>
+    <tr class="<%= t.priorite === 'Critique' ? 'critique' : '' %>">
+      <td><a href="/tickets/<%= t.id %>"><%= t.numero %></a></td>
+      <td><%= t.categorie %><br><span class="muted"><%= t.batiment %> · <%= t.salle %></span></td>
+      <td><%- include('partials/badges', { t }) %></td>
+      <td><%= fmt(t.cree_le) %></td>
+      <td>
+        <form method="post" action="/admin/tickets/<%= t.id %>/assigner" class="inline">
+          <select name="technicien_id">
+            <option value="">Non assigné</option>
+            <% techniciens.forEach(x => { %><option value="<%= x.id %>" <%= x.id === t.technicien_id ? 'selected' : '' %>><%= x.nom %></option><% }) %>
+          </select>
+          <select name="priorite"><% PRIORITES.forEach(p => { %><option <%= p === t.priorite ? 'selected' : '' %>><%= p %></option><% }) %></select>
+          <button>OK</button>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+  </tbody>
+</table>
+</div>
+<% } %>
+<%- include('partials/footer') %>

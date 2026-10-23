@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+<section class="card">
+  <div class="head">
+    <h1><%= t.numero %> · <%= t.categorie %></h1>
+    <div><%- include('partials/badges', { t }) %></div>
+  </div>
+  <dl class="meta">
+    <dt>Lieu</dt><dd><%= t.batiment %> · <%= t.salle %></dd>
+    <dt>Signalé par</dt><dd><%= t.auteur_nom %>, le <%= fmt(t.cree_le) %></dd>
+    <dt>Technicien</dt><dd><%= t.technicien_nom || 'Non assigné' %></dd>
+    <% if (t.resolu_le) { %><dt>Résolu le</dt><dd><%= fmt(t.resolu_le) %></dd><% } %>
+  </dl>
+  <p class="description"><%= t.description %></p>
+  <% if (photo) { %><img class="photo" src="<%= photo %>" alt="Photo jointe au signalement"><% } %>
+</section>
+
+<% if (erreur) { %><p class="alert error"><%= erreur %></p><% } %>
+
+<% if (user.role === 'admin') { %>
+<section class="card">
+  <h2>Assignation</h2>
+  <form method="post" action="/admin/tickets/<%= t.id %>/assigner" class="inline">
+    <input type="hidden" name="retour" value="ticket">
+    <select name="technicien_id">
+      <option value="">Non assigné</option>
+      <% techniciens.forEach(x => { %><option value="<%= x.id %>" <%= x.id === t.technicien_id ? 'selected' : '' %>><%= x.nom %></option><% }) %>
+    </select>
+    <select name="priorite">
+      <% ['Basse', 'Normale', 'Haute', 'Critique'].forEach(p => { %><option <%= p === t.priorite ? 'selected' : '' %>><%= p %></option><% }) %>
+    </select>
+    <button>Enregistrer</button>
+  </form>
+</section>
+<% } %>
+
+<% if (transitions.length) { %>
+<section class="card">
+  <h2>Mettre à jour</h2>
+  <form method="post" action="/tickets/<%= t.id %>/statut">
+    <label>Nouveau statut
+      <select name="statut"><% transitions.forEach(s => { %><option><%= s %></option><% }) %></select>
+    </label>
+    <label>Commentaire <%= transitions.includes('Résolu') ? '(obligatoire pour « Résolu »)' : '' %>
+      <textarea name="commentaire" rows="2" placeholder="Ex. : lampe du vidéoprojecteur remplacée"></textarea>
+    </label>
+    <button class="primary">Valider</button>
+  </form>
+</section>
+<% } %>
+
+<section class="card">
+  <h2>Historique</h2>
+  <ol class="timeline">
+  <% historique.forEach(h => { %>
+    <li>
+      <span class="muted"><%= fmt(h.date) %></span> ·
+      <strong><%= h.auteur_nom || 'Système' %></strong>
+      <% if (h.nouveau_statut && h.ancien_statut !== h.nouveau_statut) { %>
+        · <%= h.ancien_statut ? h.ancien_statut + ' → ' : '' %><%= h.nouveau_statut %>
+      <% } %>
+      <% if (h.commentaire) { %><div><%= h.commentaire %></div><% } %>
+    </li>
+  <% }) %>
+  </ol>
+</section>
+<%- include('partials/footer') %>

@@ -1,0 +1,3 @@
+<span class="badge statut-<%= slug(t.statut) %>"><%= t.statut %></span>
+<span class="badge prio-<%= slug(t.priorite) %>"><%= t.priorite %></span>
+<% if (t.en_retard && t.statut === 'Nouveau') { %><span class="badge retard">En retard</span><% } %>

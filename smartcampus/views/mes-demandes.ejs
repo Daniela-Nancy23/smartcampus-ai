@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+<div class="head">
+  <h1>Mes demandes</h1>
+  <a class="button primary" href="/tickets/nouveau">+ Signaler un incident</a>
+</div>
+<% const retards = tickets.filter(t => t.en_retard && t.statut === 'Nouveau'); %>
+<% if (retards.length) { %>
+  <p class="alert warning">
+    <%= retards.length === 1 ? 'Une demande n’a' : retards.length + ' demandes n’ont' %> pas été prise<%= retards.length > 1 ? 's' : '' %> en charge depuis plus de 24 h. L'équipe a été relancée automatiquement.
+  </p>
+<% } %>
+<% if (!tickets.length) { %>
+  <p class="empty">Vous n'avez encore fait aucun signalement.</p>
+<% } else { %>
+  <ul class="tickets">
+  <% tickets.forEach(t => { %>
+    <li>
+      <a href="/tickets/<%= t.id %>">
+        <div class="row1"><strong><%= t.numero %></strong> · <%= t.categorie %> · <%= t.batiment %> <%= t.salle %></div>
+        <div class="row2"><%- include('partials/badges', { t }) %><span class="muted">Mis à jour le <%= fmt(t.maj_le) %></span></div>
+      </a>
+    </li>
+  <% }) %>
+  </ul>
+<% } %>
+<%- include('partials/footer') %>

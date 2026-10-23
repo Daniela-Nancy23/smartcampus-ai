@@ -1,0 +1,19 @@
+<%- include('partials/header') %>
+<h1>Ma file de tickets</h1>
+<p class="muted">Triés par priorité puis par ancienneté.</p>
+<% if (!tickets.length) { %>
+  <p class="empty">Aucun ticket ouvert ne vous est assigné.</p>
+<% } else { %>
+  <ul class="tickets">
+  <% tickets.forEach(t => { %>
+    <li class="<%= t.priorite === 'Critique' ? 'critique' : '' %>">
+      <a href="/tickets/<%= t.id %>">
+        <div class="row1"><strong><%= t.numero %></strong> · <%= t.categorie %> · <%= t.batiment %> <%= t.salle %></div>
+        <div class="row2"><%- include('partials/badges', { t }) %><span class="muted">Signalé le <%= fmt(t.cree_le) %></span></div>
+        <div class="row3"><%= t.description %></div>
+      </a>
+    </li>
+  <% }) %>
+  </ul>
+<% } %>
+<%- include('partials/footer') %>

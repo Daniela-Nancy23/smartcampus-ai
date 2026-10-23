@@ -1,0 +1,31 @@
+<%- include('partials/header') %>
+<section class="card">
+  <h1>Signaler un incident</h1>
+  <% if (depuisAssistant) { %><p class="alert info">Formulaire pré-rempli par l'assistant : vérifiez et complétez avant d'envoyer.</p><% } %>
+  <form method="post" action="/tickets" enctype="multipart/form-data" novalidate>
+    <label>Catégorie *
+      <select name="categorie_id" class="<%= erreurs.categorie_id ? 'invalid' : '' %>">
+        <option value="">— Choisir —</option>
+        <% categories.forEach(c => { %><option value="<%= c.id %>" <%= String(valeurs.categorie_id) === String(c.id) ? 'selected' : '' %>><%= c.libelle %></option><% }) %>
+      </select>
+      <% if (erreurs.categorie_id) { %><span class="field-error"><%= erreurs.categorie_id %></span><% } %>
+    </label>
+    <label>Lieu *
+      <select name="lieu_id" class="<%= erreurs.lieu_id ? 'invalid' : '' %>">
+        <option value="">— Choisir —</option>
+        <% lieux.forEach(l => { %><option value="<%= l.id %>" <%= String(valeurs.lieu_id) === String(l.id) ? 'selected' : '' %>><%= l.batiment %> · <%= l.salle %></option><% }) %>
+      </select>
+      <% if (erreurs.lieu_id) { %><span class="field-error"><%= erreurs.lieu_id %></span><% } %>
+    </label>
+    <label>Description *
+      <textarea name="description" rows="4" class="<%= erreurs.description ? 'invalid' : '' %>" placeholder="Ex. : le vidéoprojecteur ne s'allume pas"><%= valeurs.description %></textarea>
+      <% if (erreurs.description) { %><span class="field-error"><%= erreurs.description %></span><% } %>
+    </label>
+    <label>Photo (optionnelle, JPG ou PNG, 10 Mo max)
+      <input type="file" name="photo" accept="image/jpeg,image/png" capture="environment">
+      <% if (erreurs.photo) { %><span class="field-error"><%= erreurs.photo %></span><% } %>
+    </label>
+    <button class="primary">Envoyer le signalement</button>
+  </form>
+</section>
+<%- include('partials/footer') %>

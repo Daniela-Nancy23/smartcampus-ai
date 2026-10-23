@@ -1,0 +1,46 @@
+<%- include('partials/header') %>
+<section class="card chat">
+  <h1>Assistant du campus</h1>
+  <p class="muted">Posez une question sur le campus : horaires, Wi-Fi, impression, réservation de salle…</p>
+  <div id="messages" class="messages" aria-live="polite"></div>
+  <form id="chat-form" class="chat-form">
+    <input id="question" name="question" maxlength="500" placeholder="Ex. : comment me connecter au Wi-Fi ?" autocomplete="off" required>
+    <button class="primary">Envoyer</button>
+  </form>
+</section>
+<script>
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('question');
+  const box = document.getElementById('messages');
+  function ajouter(classe, texte, lien) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + classe;
+    div.textContent = texte;
+    if (lien) {
+      const a = document.createElement('a');
+      a.href = lien; a.className = 'button'; a.textContent = 'Créer un signalement';
+      div.appendChild(document.createElement('br')); div.appendChild(a);
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const question = input.value.trim();
+    if (!question) return;
+    ajouter('user', question);
+    input.value = '';
+    const attente = ajouter('bot pending', '…');
+    try {
+      const r = await fetch('/api/assistant', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) });
+      const d = await r.json();
+      attente.remove();
+      ajouter('bot', d.reponse || d.erreur || 'Erreur', d.signalement);
+    } catch {
+      attente.remove();
+      ajouter('bot', "L'assistant est indisponible pour le moment.");
+    }
+  });
+</script>
+<%- include('partials/footer') %>

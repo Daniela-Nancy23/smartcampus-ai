@@ -1,0 +1,13 @@
+<%- include('partials/header') %>
+<section class="card narrow">
+  <h1>Connexion</h1>
+  <% if (erreur) { %><p class="alert error"><%= erreur %></p><% } %>
+  <form method="post" action="/login">
+    <label>E-mail <input type="email" name="email" value="<%= email %>" required autofocus></label>
+    <label>Mot de passe <input type="password" name="mot_de_passe" required></label>
+    <button class="primary">Se connecter</button>
+  </form>
+  <p class="hint">Comptes de démo (mot de passe <code>demo1234</code>) :<br>
+    lea@campus.fr (étudiante) · karim@campus.fr (technicien) · sophie@campus.fr (admin)</p>
+</section>
+<%- include('partials/footer') %>
